@@ -13,4 +13,4 @@ Interactive educational resources for materials science and engineering.
 - [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
 
 ## Plasticity
-- [Cu-Ni Phase Diagram](phase-diagrams/cu-ni/)
+- [Theoretical shear strength visualization](dislocations/theoretical_shear_strength/)

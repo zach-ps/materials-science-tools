@@ -29,8 +29,6 @@ This repository contains interactive teaching resources for:
 The tools are primarily developed using:
 
 - Python
-- Plotly
-- GitHub Pages
 
 ---
 
@@ -45,6 +43,10 @@ Interactive phase diagrams with:
 
 ### [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
 
+
+## Plasticity
+
+### [Theoretical shear strength visualization](dislocations/theoretical_shear_strength/)
 
 ---
 

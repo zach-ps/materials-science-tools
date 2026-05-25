@@ -4,7 +4,7 @@ Interactive educational resources for materials science and engineering.
 
 ## Topics
 - Phase diagrams
-- Dislocations
+- Plasticity
 - Strengthening mechanisms
 
 ## Phase Diagrams
@@ -12,3 +12,5 @@ Interactive educational resources for materials science and engineering.
 - [Cu-Ni Phase Diagram](phase-diagrams/cu-ni/)
 - [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
 
+## Plasticity
+- [Cu-Ni Phase Diagram](phase-diagrams/cu-ni/)

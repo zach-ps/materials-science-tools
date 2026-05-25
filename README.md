@@ -1,4 +1,4 @@
-# Materials-science Tools
+# [Materials-science Tools](zach-ps.github.io/materials-science-tools/)
 
 Interactive educational tools and scientific visualizations for teaching materials science and engineering concepts.
 
@@ -32,7 +32,7 @@ The tools are primarily developed using:
 
 ---
 
-# Current Interactive Tools
+# [Current Interactive Tools]
 
 ## Phase Diagrams
 

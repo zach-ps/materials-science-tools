@@ -39,15 +39,15 @@ Interactive phase diagrams with:
 
 - Hover-based coordinate inspection
   
-### [Cu-Ni Phase Diagram](phase-diagrams/cu-ni/)
+### [Cu-Ni Phase Diagram](https://zach-ps.github.io/materials-science-tools/phase-diagrams/cu-ni/)
 
-### [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
+### [Pb-Sn Phase Diagram](https://zach-ps.github.io/materials-science-tools/phase-diagrams/pb-sn/)
 
-### [Fe-C Phase Diagram (not interactive yet)](phase-diagrams/fe-c/)
+### [Fe-C Phase Diagram (not interactive yet)](https://zach-ps.github.io/materials-science-tools/phase-diagrams/fe-c/)
 
 ## Plasticity
 
-### [Theoretical shear strength visualization](dislocations/theoretical_shear_strength/)
+### [Theoretical shear strength visualization](https://zach-ps.github.io/materials-science-tools/dislocations/theoretical_shear_strength/)
 
 ---
 

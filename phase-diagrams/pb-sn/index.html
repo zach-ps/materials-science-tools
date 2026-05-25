@@ -1,1 +1,581 @@
+# ============================================================
+# INTERACTIVE Pb-Sn PHASE DIAGRAM FROM SVG
+# ------------------------------------------------------------
+# Features:
+#   - Direct SVG curve extraction
+#   - Automatic path lookup using SVG IDs
+#   - Axis calibration
+#   - 10°C sampling for all curves
+#   - Original curve endpoints preserved
+#   - Interactive Plotly visualization
+# ============================================================
 
+# ============================================================
+# REQUIRED PACKAGES
+# ============================================================
+
+# pip install svgpathtools plotly numpy
+
+# ============================================================
+# IMPORTS
+# ============================================================
+
+from svgpathtools import svg2paths
+import numpy as np
+import plotly.graph_objects as go
+
+# ============================================================
+# LOAD SVG
+# ============================================================
+
+svg_file = "Pb_sn_curves.svg"
+
+paths, attrs = svg2paths(svg_file)
+
+print(f"\nLoaded {len(paths)} SVG paths")
+
+# ============================================================
+# BUILD PATH DICTIONARY
+# ============================================================
+
+path_dict = {}
+
+for path, attr in zip(paths, attrs):
+
+    path_id = attr.get('id')
+
+    if path_id is not None:
+
+        path_dict[path_id] = path
+
+# ============================================================
+# VERIFY REQUIRED PATHS
+# ============================================================
+
+required_paths = [
+
+    'x_axis',
+    'y_axis',
+
+    'solvus_alpha',
+    'solidus_alpha',
+
+    'eutectoid_temp',
+
+    'liquidus_alpha',
+    'liquidus_beta',
+
+    'solidus_beta',
+    'solvus_beta'
+]
+
+for name in required_paths:
+
+    if name not in path_dict:
+
+        raise ValueError(
+            f"\nERROR:\n"
+            f"Missing SVG path: {name}"
+        )
+
+print("\nAll required paths found.")
+
+# ============================================================
+# EXTRACT AXES
+# ============================================================
+
+x_axis = path_dict['x_axis']
+y_axis = path_dict['y_axis']
+
+# ============================================================
+# SVG AXIS COORDINATES
+# ============================================================
+
+x_svg_min = x_axis.start.real
+x_svg_max = x_axis.end.real
+
+# IMPORTANT:
+# SVG y increases downward
+
+y_svg_bottom = y_axis.start.imag
+y_svg_top    = y_axis.end.imag
+
+print("\n====================================")
+print("SVG AXIS COORDINATES")
+print("====================================")
+
+print(f"x_svg_min = {x_svg_min}")
+print(f"x_svg_max = {x_svg_max}")
+
+print(f"y_svg_top = {y_svg_top}")
+print(f"y_svg_bottom = {y_svg_bottom}")
+
+# ============================================================
+# PHYSICAL AXIS LIMITS
+# ============================================================
+
+# Pb-Sn phase diagram
+
+x_phys_min = 0
+x_phys_max = 100
+
+y_phys_min = 0
+y_phys_max = 350
+
+# ============================================================
+# CALIBRATION FUNCTIONS
+# ============================================================
+
+def calibrate_x(x_svg):
+
+    return (
+
+        x_phys_min
+
+        + (x_svg - x_svg_min)
+
+        * (x_phys_max - x_phys_min)
+
+        / (x_svg_max - x_svg_min)
+    )
+
+def calibrate_y(y_svg):
+
+    return (
+
+        y_phys_max
+
+        - (y_svg - y_svg_top)
+
+        * (y_phys_max - y_phys_min)
+
+        / (y_svg_bottom - y_svg_top)
+    )
+
+# ============================================================
+# VALIDATION
+# ============================================================
+
+print("\n====================================")
+print("CALIBRATION VALIDATION")
+print("====================================")
+
+print(
+    f"x_svg_min -> {calibrate_x(x_svg_min):.2f} wt% Sn"
+)
+
+print(
+    f"x_svg_max -> {calibrate_x(x_svg_max):.2f} wt% Sn"
+)
+
+print(
+    f"y_svg_top -> {calibrate_y(y_svg_top):.2f} °C"
+)
+
+print(
+    f"y_svg_bottom -> {calibrate_y(y_svg_bottom):.2f} °C"
+)
+
+# ============================================================
+# DENSE SVG SAMPLING
+# ============================================================
+
+def dense_sample(path, n_points=5000):
+
+    x_vals = []
+    y_vals = []
+
+    for t in np.linspace(0, 1, n_points):
+
+        p = path.point(t)
+
+        x_vals.append(
+            calibrate_x(p.real)
+        )
+
+        y_vals.append(
+            calibrate_y(p.imag)
+        )
+
+    return np.array(x_vals), np.array(y_vals)
+
+# ============================================================
+# SAMPLE CURVE AT 10°C INTERVALS
+# INCLUDING ORIGINAL START/END POINTS
+# ============================================================
+
+def sample_at_temperature_intervals(
+    path,
+    temp_interval=10
+):
+
+    # --------------------------------------------------------
+    # Dense sampling
+    # --------------------------------------------------------
+
+    x_dense, y_dense = dense_sample(path)
+
+    # --------------------------------------------------------
+    # Sort by temperature
+    # --------------------------------------------------------
+
+    sort_idx = np.argsort(y_dense)
+
+    y_dense = y_dense[sort_idx]
+    x_dense = x_dense[sort_idx]
+
+    # --------------------------------------------------------
+    # Remove duplicate temperatures
+    # --------------------------------------------------------
+
+    unique_y, unique_idx = np.unique(
+        y_dense,
+        return_index=True
+    )
+
+    y_dense = unique_y
+    x_dense = x_dense[unique_idx]
+
+    # --------------------------------------------------------
+    # Original endpoints
+    # --------------------------------------------------------
+
+    start_temp = y_dense[0]
+    end_temp   = y_dense[-1]
+
+    start_x = x_dense[0]
+    end_x   = x_dense[-1]
+
+    # --------------------------------------------------------
+    # Internal 10°C points
+    # --------------------------------------------------------
+
+    temp_min = np.ceil(
+        start_temp / temp_interval
+    ) * temp_interval
+
+    temp_max = np.floor(
+        end_temp / temp_interval
+    ) * temp_interval
+
+    target_temps = np.arange(
+        temp_min,
+        temp_max + temp_interval,
+        temp_interval
+    )
+
+    # --------------------------------------------------------
+    # Interpolate x-values
+    # --------------------------------------------------------
+
+    x_interp = np.interp(
+        target_temps,
+        y_dense,
+        x_dense
+    )
+
+    # --------------------------------------------------------
+    # Combine with original endpoints
+    # --------------------------------------------------------
+
+    final_temps = np.concatenate([
+        [start_temp],
+        target_temps,
+        [end_temp]
+    ])
+
+    final_x = np.concatenate([
+        [start_x],
+        x_interp,
+        [end_x]
+    ])
+
+    # --------------------------------------------------------
+    # Remove duplicates
+    # --------------------------------------------------------
+
+    keep = np.ones(len(final_temps), dtype=bool)
+
+    keep[1:] = np.diff(final_temps) > 1e-6
+
+    final_temps = final_temps[keep]
+    final_x     = final_x[keep]
+
+    return final_x, final_temps
+
+# ============================================================
+# CREATE FIGURE
+# ============================================================
+
+fig = go.Figure()
+
+# ============================================================
+# CURVES TO SAMPLE AT 10°C
+# ============================================================
+
+curve_names = [
+
+    'solvus_alpha',
+    'solidus_alpha',
+
+    'liquidus_alpha',
+    'liquidus_beta',
+
+    'solidus_beta',
+    'solvus_beta'
+]
+
+# ============================================================
+# ADD CURVES
+# ============================================================
+
+for name in curve_names:
+
+    x_vals, y_vals = sample_at_temperature_intervals(
+
+        path_dict[name],
+
+        temp_interval=10
+    )
+
+    fig.add_trace(
+
+        go.Scatter(
+
+            x=x_vals,
+            y=y_vals,
+
+            mode='lines+markers',
+
+            name=name,
+
+            hovertemplate=
+            'Composition: %{x:.2f} wt% Sn<br>' +
+            'Temperature: %{y:.1f} °C'
+        )
+    )
+
+# ============================================================
+# ADD EUTECTOID / EUTECTIC LINE
+# ============================================================
+
+x_eut, y_eut = dense_sample(
+
+    path_dict['eutectoid_temp'],
+
+    n_points=1000
+)
+
+fig.add_trace(
+
+    go.Scatter(
+
+        x=x_eut,
+        y=y_eut,
+
+        mode='lines',
+
+        name='eutectoid_temp',
+
+        hovertemplate=
+        'Composition: %{x:.2f} wt% Sn<br>' +
+        'Temperature: %{y:.1f} °C'
+    )
+)
+
+# ============================================================
+# PHASE LABELS (SERIF FONT)
+# ============================================================
+
+phase_font = dict(
+    size=24,
+    family='Times New Roman'
+)
+
+fig.add_annotation(
+    x=55,
+    y=280,
+    text='Liquid',
+    showarrow=False,
+    font=phase_font
+)
+
+fig.add_annotation(
+    x=30,
+    y=210,
+    text='α + L',
+    showarrow=False,
+    font=phase_font
+)
+
+fig.add_annotation(
+    x=90,
+    y=200,
+    text='β + L',
+    showarrow=False,
+    font=phase_font
+)
+
+fig.add_annotation(
+    x=45,
+    y=120,
+    text='α + β',
+    showarrow=False,
+    font=phase_font
+)
+
+fig.add_annotation(
+    x=3,
+    y=210,
+    text='α',
+    showarrow=False,
+    font=phase_font
+)
+
+fig.add_annotation(
+
+    x=99.5,
+    y=182.7,
+
+    text='β',
+
+    showarrow=True,
+
+    arrowhead=2,
+
+    arrowsize=1,
+
+    arrowwidth=1.5,
+
+    ax=-40,          # text offset in pixels
+    ay=30,
+
+    font=dict(
+        size=24,
+        family='Times New Roman'
+    )
+)
+
+# ============================================================
+# FIGURE LAYOUT
+# ============================================================
+
+fig.update_layout(
+    showlegend=False,
+
+    title=dict(
+        text='Interactive Pb-Sn Phase Diagram from SVG',
+        font=dict(size=24)
+    ),
+
+    xaxis_title=dict(
+        text='Composition (wt% Sn)',
+        font=dict(size=24)
+    ),
+
+    yaxis_title=dict(
+        text='Temperature (°C)',
+        font=dict(size=24)
+    ),
+
+    hovermode='closest',
+
+    template='simple_white',
+
+    width=1100,
+    height=700,
+
+    font=dict(
+        size=24
+    ),
+
+    # --------------------------------------------------------
+    # X AXIS
+    # --------------------------------------------------------
+
+    xaxis=dict(
+
+        range=[0,100],
+
+        tickmode='linear',
+
+        tick0=0,
+
+        dtick=10,
+
+        tickfont=dict(size=24),
+
+        showgrid=True,
+
+        gridwidth=1,
+        
+        # Spine settings
+        showline=True,
+        mirror=True,
+        linewidth=2,
+        linecolor='black'
+    ),
+
+    # --------------------------------------------------------
+    # Y AXIS
+    # --------------------------------------------------------
+
+    yaxis=dict(
+
+        range=[0,350],
+
+        tickmode='linear',
+
+        tick0=0,
+
+        dtick=50,              # major ticks every 50°C
+
+        tickfont=dict(size=24),
+
+        showgrid=True,
+
+        gridwidth=1,
+
+        # Minor grid every 5°C
+        minor=dict(
+
+            tickmode='linear',
+
+            tick0=0,
+
+            dtick=5,
+
+            showgrid=True
+        ),
+        
+        # Spine settings
+        showline=True,
+        mirror=True,
+        linewidth=2,
+        linecolor='black'
+
+    )
+    
+)
+
+# ============================================================
+# SAVE HTML
+# ============================================================
+
+fig.write_html(
+
+    "PbSn_phase_diagram_from_svg.html",
+
+    include_plotlyjs='cdn'
+)
+
+# ============================================================
+# SHOW FIGURE
+# ============================================================
+
+fig.show()
+
+print("\n====================================")
+print("Interactive HTML saved:")
+print("PbSn_phase_diagram_from_svg.html")
+print("====================================")

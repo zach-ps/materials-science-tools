@@ -1,4 +1,4 @@
-# [Materials-science Tools](zach-ps.github.io/materials-science-tools/)
+# [Materials-science Tools](materials-science-tools/)
 
 Interactive educational tools and scientific visualizations for teaching materials science and engineering concepts.
 

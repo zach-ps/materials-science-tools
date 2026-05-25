@@ -43,6 +43,7 @@ Interactive phase diagrams with:
 
 ### [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
 
+### [Fe-C Phase Diagram (not interactive yet)](phase-diagrams/fe-c/)
 
 ## Plasticity
 

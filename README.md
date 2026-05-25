@@ -37,12 +37,13 @@ The tools are primarily developed using:
 # [Current Interactive Tools]
 
 ## Phase Diagrams
-
-### [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
-
-Interactive Pb-Sn eutectic phase diagram with:
+Interactive phase diagrams with:
 
 - Hover-based coordinate inspection
+  
+### [Cu-Ni Phase Diagram](phase-diagrams/cu-ni/)
+
+### [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
 
 
 ---

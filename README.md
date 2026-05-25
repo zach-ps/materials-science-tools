@@ -1,4 +1,4 @@
-# materials-science-tools
+# Materials-science Tools
 
 Interactive educational tools and scientific visualizations for teaching materials science and engineering concepts.
 
@@ -28,7 +28,6 @@ The tools are primarily developed using:
 
 - Python
 - Plotly
-- SVG vector graphics
 - GitHub Pages
 
 ---
@@ -37,15 +36,12 @@ The tools are primarily developed using:
 
 ## Phase Diagrams
 
-### Pb-Sn Phase Diagram
+### [Pb-Sn Phase Diagram](phase-diagrams/pb-sn/)
 
 Interactive Pb-Sn eutectic phase diagram with:
 
-- SVG-based curve extraction
-- Interactive tie-line visualization
-- Composition and temperature extraction
 - Hover-based coordinate inspection
-- High-resolution vector curves
+
 
 ---
 
